@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score tracker</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+        }
+
+        input::-webkit-input-placeholder {
+            color: white;
+        }
+
+        input:-moz-placeholder {
+            /* Firefox 18- */
+            color: white;
+        }
+
+        input::-moz-placeholder {
+            /* Firefox 19+ */
+            color: white;
+        }
+
+        input:-ms-input-placeholder {
+            color: white;
+        }
+
+        .prevent-select {
+            -webkit-user-select: none;
+            /* Safari */
+            -ms-user-select: none;
+            /* IE 10 and IE 11 */
+            user-select: none;
+            /* Standard syntax */
+        }
+
+        button.shortcut {
+            width: 2em;
+            text-align: center;
+            background: transparent;
+            font-size: 3vmin;
+            font-family: system-ui;
+            word-wrap: break-word;
+            border-radius: 10px;
+        }
+
+        button.serving {
+            position: absolute;
+            width: 5%;
+            aspect-ratio: 1/1;
+            left: 47.5%;
+            background-color: black;
+            color: white;
+            border-radius: 50%;
+            border-width: 0;
+            display: none;
+            z-index: 12;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <!-- wins -->
+        <div
+            style="width: 10vw; height: 10vh; left: 45vw; top: 20vh; position: absolute; background: white; border-radius: 25px; display: flex; align-items:center">
+            <div id="left-wins" class="prevent-select"
+                style="flex:50%; text-align: center; font-size: 10vmin; font-family: system-ui; font-weight: 500; word-wrap: break-word">
+                0
+            </div>
+            <div id="right-wins" class="prevent-select"
+                style="flex:50%; text-align: center; font-size: 10vmin; font-family: system-ui; font-weight: 500; word-wrap: break-word">
+                0
+            </div>
+        </div>
+        <button id="openSettings" onclick="openSettings()"
+            style="width: 5vw; height: 5vw; position:absolute; bottom:1vh; left:47.5vw; border-radius: 50%; border-width:0; display: flex; align-items: center; text-align: center; background: white ; color:black; z-index: 11; font-size: 3vw; margin: auto; text-align: center; display:inline-block;">
+            ?
+        </button>
+        <!-- settings -->
+        <div id="settings"
+            style="width: 90vw; height: 30vh; left: 5vw; bottom: 0vh; position: absolute; background: white; border-radius:12px 12px 0px 0px; z-index: 10; display:none ">
+            <button onclick="closeSettings()"
+                style="position:relative; float:right; top:1vh; right:1vh; border-radius: 50%; border-width:0; display: flex; align-items: center; text-align: center; background: #e0e0e0 ; color:red; z-index: 11; font-size: 3vmin;">
+                X
+            </button>
+            <div style="padding: 0px 1vw;">
+                <p style="font-size: 3vmin;">play to
+                    <input id="play-to" type="number" value="11" min="1"
+                        style="width:3em; text-align: center; background:transparent; font-size: 3vmin; font-family: system-ui; word-wrap: break-word; border-radius: 10px;">
+                    points, win at least
+                    <input id="win-by" type="number" value="2" min="1"
+                        style="width:3em; text-align: center; background:transparent; font-size: 3vmin; font-family: system-ui; word-wrap: break-word; border-radius: 10px;">
+                    points ahead, serve
+                    <input id="serve-num" type="number" value="2" min="1"
+                        style="width:3em; text-align: center; background:transparent; font-size: 3vmin; font-family: system-ui; word-wrap: break-word; border-radius: 10px;">
+                    times before changing
+                </p>
+                <button class="shortcut" onclick="winLeft(1)">Q</button>
+                <button class="shortcut" onclick="winRight(1)">E</button>
+                to increase wins,
+                <button class="shortcut" onclick="scoreLeft(1)">A</button>
+                <button class="shortcut" onclick="scoreRight(1)">D</button>
+                to increase score, hold
+                <button class="shortcut" style="width:4em">Shift</button>
+                to decrease, and
+                <button class="shortcut" onclick="reset()">X</button>
+                to reset
+                </p>
+            </div>
+        </div>
+
+
+        <div style="display: flex; align-items:stretch">
+            <div id="left-bg" style="flex:49.75vw; height:100vh">
+                <div style="height:50vh; top:20vh; position:relative">
+                    <button id="left-serve" class="serving" onclick="changeServe()"></button>
+                    <div id="left-score" class="prevent-select"
+                        style="width:100%; position:relative; text-align: center; background:transparent; border: none; color: white; font-size: 20vw; font-family: system-ui; font-weight: 500; word-wrap: break-word">
+                        0
+                    </div>
+                    <input id="left-name" placeholder="Player 1"
+                        style="width:100%; text-align: center; background:transparent; border: none; color: white; font-size: 5vw; font-family: system-ui; font-weight: 500; word-wrap: break-word ">
+                </div>
+            </div>
+            <div style="background-color:white; flex:0.5vw; height:100vh"></div>
+            <div id="right-bg" style=" flex:49.75vw; height:100vh">
+                <div style="height:50vh; top:20vh; position:relative">
+                    <button id="right-serve" class="serving" onclick="changeServe()"></button>
+                    <div id="right-score" class="prevent-select"
+                        style="width:100%; position:relative; text-align: center; background:transparent; border: none; color: white; font-size: 20vw; font-family: system-ui; font-weight: 500; word-wrap: break-word">
+                        0
+                    </div>
+                    <input id="right-name" placeholder="Player 2"
+                        style="width:100%; text-align: center; background:transparent; border: none; color: white; font-size: 5vw; font-family: system-ui; font-weight: 500; word-wrap: break-word ">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var settings = document.getElementById("settings");
+
+        var leftWins = document.getElementById("left-wins");
+        var leftScore = document.getElementById("left-score");
+        var leftName = document.getElementById("left-name");
+        var leftBg = document.getElementById("left-bg");
+        var leftServe = document.getElementById("left-serve");
+
+        var rightWins = document.getElementById("right-wins");
+        var rightScore = document.getElementById("right-score");
+        var rightName = document.getElementById("right-name");
+        var rightBg = document.getElementById("right-bg");
+        var rightServe = document.getElementById("right-serve");
+
+        var playTo = document.getElementById("play-to");
+        var winBy = document.getElementById("win-by");
+        var serveNum = document.getElementById("serve-num");
+
+        window.addEventListener("DOMContentLoaded", function () {
+            changeBgRight("red");
+            changeBgLeft("blue");
+            leftServe.style.display = "flex";
+        });
+
+        function changeBgRight(color) {
+            rightBg.style.backgroundColor = color;
+            rightWins.style.color = color;
+            return color;
+        }
+
+        function changeBgLeft(color) {
+            leftBg.style.backgroundColor = color;
+            leftWins.style.color = color;
+            return color;
+        }
+
+        function scoreLeft(num) {
+            leftScore.innerText = Number(leftScore.innerText) + num;
+            checkWin();
+            return Number(leftScore.innerText);
+        }
+
+        function scoreRight(num) {
+            rightScore.innerText = Number(rightScore.innerText) + num;
+            checkWin();
+            return Number(rightScore.innerText);
+        }
+
+        function winLeft(num) {
+            leftWins.innerText = Number(leftWins.innerText) + num;
+            resetScore();
+            return Number(leftWins.innerText);
+        }
+
+        function winRight(num) {
+            rightWins.innerText = Number(rightWins.innerText) + num;
+            resetScore();
+            return Number(rightWins.innerText);
+        }
+
+        function checkWin() {
+            if (Number(rightScore.innerText) >= Math.max(Number(playTo.value), Number(leftScore.innerText) + Number(winBy.value))) {
+                winRight(1);
+            } else if (Number(leftScore.innerText) >= Math.max(Number(playTo.value), Number(rightScore.innerText) + Number(winBy.value))) {
+                winLeft(1);
+            } else if (Number(leftScore.innerText) >= (Number(playTo.value) - 1) && Number(rightScore.innerText) >= (Number(playTo.value) - 1)) {
+                changeServe();
+            } else {
+                checkServe();
+            }
+        }
+
+        function checkServe() {
+            if ((Number(leftScore.innerText) + Number(rightScore.innerText)) % serveNum.value === 0) {
+                changeServe()
+            }
+        }
+
+        function changeServe() {
+            leftServe.style.display === "flex" ? leftServe.style.display = "none" : leftServe.style.display = "flex";
+            rightServe.style.display === "flex" ? rightServe.style.display = "none" : rightServe.style.display = "flex";
+        }
+
+        function resetScore() {
+            leftScore.innerText = 0;
+            rightScore.innerText = 0;
+        }
+
+        function reset() {
+            leftScore.innerText = 0;
+            rightScore.innerText = 0;
+            rightWins.innerText = 0;
+            leftWins.innerText = 0;
+        }
+
+        function closeSettings() {
+            document.getElementById("openSettings").style.display = "inline-block";
+            settings.style.display = "none";
+        }
+
+        function openSettings() {
+            document.getElementById("openSettings").style.display = "none";
+            settings.style.display = "";
+        }
+
+        document.addEventListener("keydown", e => {
+            if (e.key.toLowerCase() === "a" && e.shiftKey) {
+                e.preventDefault();
+                scoreLeft(-1);
+            }
+            else if (e.key.toLowerCase() === "a" && !e.shiftKey) {
+                e.preventDefault();
+                scoreLeft(1);
+            }
+            else if (e.key.toLowerCase() === "d" && e.shiftKey) {
+                e.preventDefault();
+                scoreRight(-1);
+            }
+            else if (e.key.toLowerCase() === "d" && !e.shiftKey) {
+                e.preventDefault();
+                scoreRight(1);
+            }
+            else if (e.key.toLowerCase() === "q" && e.shiftKey) {
+                e.preventDefault();
+                winLeft(-1);
+            }
+            else if (e.key.toLowerCase() === "q" && !e.shiftKey) {
+                e.preventDefault();
+                winLeft(1);
+            }
+            else if (e.key.toLowerCase() === "e" && e.shiftKey) {
+                e.preventDefault();
+                winRight(-1);
+            }
+            else if (e.key.toLowerCase() === "e" && !e.shiftKey) {
+                e.preventDefault();
+                winRight(1);
+            }
+            else if (e.key.toLowerCase() === "x" && !e.shiftKey) {
+                e.preventDefault();
+                reset();
+            }
+        });
+    </script>
+</body>
+
+</html>
